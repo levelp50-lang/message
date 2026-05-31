@@ -276,7 +276,16 @@
         body: JSON.stringify({ offer, link, brand, leads })
       });
 
-      const parsed = await res.json();
+      const raw = await res.text();
+      let parsed;
+      try { parsed = JSON.parse(raw); } catch(je) {
+        results.innerHTML = '<div class="err">Bad response from server:<br><pre>' + raw + '</pre></div>';
+        btn.disabled = false; btn.textContent = 'Generate Sequences'; return;
+      }
+      if (!parsed.sequences || !Array.isArray(parsed.sequences)) {
+        results.innerHTML = '<div class="err">Unexpected response:<br><pre>' + JSON.stringify(parsed, null, 2) + '</pre></div>';
+        btn.disabled = false; btn.textContent = 'Generate Sequences'; return;
+      }
       sequences = parsed.sequences;
       renderResults(sequences);
     } catch(e) {

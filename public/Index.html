@@ -402,6 +402,7 @@
       if (data.success) {
         btn.textContent = 'Sent ✓';
         btn.classList.add('done');
+        setStatus(i, 'sent');
       } else {
         btn.textContent = 'Failed';
         btn.classList.add('fail');

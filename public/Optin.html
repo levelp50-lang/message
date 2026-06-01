@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Test the SMS — Zetsu Outreach</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #080809; --accent: #00e5c0; --text: #f0eeea;
+    --muted: #5a5a66; --border: #1e1e26; --surface: #0f0f13;
+  }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'DM Sans', sans-serif; min-height: 100vh;
+    display: flex; align-items: center; justify-content: center; padding: 40px 24px;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(0,229,192,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,192,0.03) 1px, transparent 1px);
+    background-size: 60px 60px; pointer-events: none;
+  }
+  .card {
+    position: relative; z-index: 1; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 16px;
+    padding: 56px 48px; width: 100%; max-width: 480px;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 2px; background: var(--accent); border-radius: 16px 16px 0 0;
+  }
+  .eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 16px;
+  }
+  h1 { font-family: 'Bebas Neue', sans-serif; font-size: 52px; line-height: 0.95; letter-spacing: 0.02em; margin-bottom: 12px; }
+  .sub { font-size: 14px; color: var(--muted); font-weight: 300; line-height: 1.6; margin-bottom: 36px; }
+  .sub strong { color: var(--text); font-weight: 500; }
+  label {
+    display: block; font-family: 'DM Mono', monospace; font-size: 11px;
+    font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 8px;
+  }
+  input {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-family: 'DM Sans', sans-serif;
+    font-size: 15px; padding: 14px 16px; outline: none;
+    transition: border-color 0.15s; margin-bottom: 20px;
+  }
+  input:focus { border-color: var(--accent); }
+  input::placeholder { color: var(--muted); }
+  .btn {
+    width: 100%; background: var(--accent); color: #000; border: none;
+    border-radius: 8px; font-family: 'Bebas Neue', sans-serif; font-size: 22px;
+    letter-spacing: 0.1em; padding: 16px; cursor: pointer; transition: opacity 0.15s; margin-top: 8px;
+  }
+  .btn:hover { opacity: 0.85; }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .msg { margin-top: 20px; font-family: 'DM Mono', monospace; font-size: 13px; text-align: center; min-height: 20px; }
+  .msg.success { color: var(--accent); }
+  .msg.error { color: #ff5c3a; }
+  .step { display: none; }
+  .step.active { display: block; }
+  .back {
+    background: none; border: none; color: var(--muted);
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
+    margin-top: 16px; display: block; width: 100%; text-align: center; padding: 8px;
+  }
+  .back:hover { color: var(--text); }
+  .success-state { text-align: center; display: none; }
+  .success-state.show { display: block; }
+  .check { font-size: 56px; margin-bottom: 20px; }
+  .success-state h2 { font-family: 'Bebas Neue', sans-serif; font-size: 40px; margin-bottom: 12px; }
+  .success-state p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+  .success-state a {
+    display: inline-block; margin-top: 28px; background: var(--accent); color: #000;
+    font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 0.1em;
+    padding: 14px 32px; border-radius: 8px; text-decoration: none;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <div id="formSteps">
+    <div class="step active" id="step1">
+      <div class="eyebrow">Free SMS Test</div>
+      <h1>SEE IT IN ACTION</h1>
+      <p class="sub">Enter your number and we'll send a <strong>real AI-written SMS</strong> straight to your phone — so you know exactly what your leads will receive.</p>
+
+      <label>Your Name</label>
+      <input id="name" type="text" placeholder="John Smith" />
+
+      <label>Email</label>
+      <input id="email" type="email" placeholder="john@email.com" />
+
+      <label>Phone Number</label>
+      <input id="phone" type="tel" placeholder="3135550100" maxlength="10" />
+
+      <button class="btn" id="sendBtn" onclick="sendCode()">Text Me The Code →</button>
+      <p class="msg" id="msg1"></p>
+    </div>
+
+    <div class="step" id="step2">
+      <div class="eyebrow">Almost there</div>
+      <h1>CHECK YOUR PHONE</h1>
+      <p class="sub">We just texted you a 6-digit code. Enter it below to verify your number and receive the demo SMS.</p>
+
+      <label>6-Digit Code</label>
+      <input id="code" type="number" placeholder="123456" />
+
+      <button class="btn" id="verifyBtn" onclick="verifyCode()">Verify & Send My Demo →</button>
+      <button class="back" onclick="goBack()">← Wrong number? Go back</button>
+      <p class="msg" id="msg2"></p>
+    </div>
+  </div>
+
+  <div class="success-state" id="successState">
+    <div class="check">✦</div>
+    <h2>CHECK YOUR TEXTS</h2>
+    <p>Your demo SMS is on its way. That's exactly what your leads will get — personalized, direct, and ready to convert.</p>
+    <a href="https://msgz.netlify.app">Run a Real Campaign →</a>
+  </div>
+</div>
+
+<script>
+  let userData = {};
+
+  async function sendCode() {
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const msg = document.getElementById('msg1');
+    const btn = document.getElementById('sendBtn');
+    if (!name || !email || !phone) { msg.textContent = 'Fill in all fields.'; msg.className = 'msg error'; return; }
+    userData = { name, email, phone };
+    btn.disabled = true; btn.textContent = 'Sending...'; msg.textContent = '';
+    try {
+      const res = await fetch('/api/verify-send', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone })
+      });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('step1').classList.remove('active');
+        document.getElementById('step2').classList.add('active');
+      } else { msg.textContent = data.error || 'Something went wrong.'; msg.className = 'msg error'; }
+    } catch(e) { msg.textContent = 'Failed to send code.'; msg.className = 'msg error'; }
+    btn.disabled = false; btn.textContent = 'Text Me The Code →';
+  }
+
+  async function verifyCode() {
+    const code = document.getElementById('code').value.trim();
+    const msg = document.getElementById('msg2');
+    const btn = document.getElementById('verifyBtn');
+    if (!code) { msg.textContent = 'Enter the code.'; msg.className = 'msg error'; return; }
+    btn.disabled = true; btn.textContent = 'Verifying...'; msg.textContent = '';
+    try {
+      const res = await fetch('/api/verify-check', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...userData, code })
+      });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('formSteps').style.display = 'none';
+        document.getElementById('successState').classList.add('show');
+      } else { msg.textContent = data.error || 'Invalid code. Try again.'; msg.className = 'msg error'; }
+    } catch(e) { msg.textContent = 'Verification failed.'; msg.className = 'msg error'; }
+    btn.disabled = false; btn.textContent = 'Verify & Send My Demo →';
+  }
+
+  function goBack() {
+    document.getElementById('step2').classList.remove('active');
+    document.getElementById('step1').classList.add('active');
+  }
+</script>
+</body>
+</html>

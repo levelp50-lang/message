@@ -31,27 +31,25 @@ For each lead write:
 Respond ONLY in this exact JSON, no markdown, no extra text:
 {"sequences":[{"name":"","email":"","phone":"","email_subject":"","email_body":"","sms":""}]}`;
 
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('https://api.x.ai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01'
+        'Authorization': `Bearer ${process.env.XAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 4000,
+        model: 'grok-3',
         messages: [{ role: 'user', content: prompt }]
       })
     });
 
     const data = await res.json();
 
-    if (!data.content || !Array.isArray(data.content)) {
-      return { statusCode: 500, body: JSON.stringify({ error: 'Bad Anthropic response', detail: data }) };
+    if (!data.choices || !data.choices[0]) {
+      return { statusCode: 500, body: JSON.stringify({ error: 'Bad Grok response', detail: data }) };
     }
 
-    const text = data.content.map(b => b.text || '').join('');
+    const text = data.choices[0].message.content;
     const clean = text.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
 

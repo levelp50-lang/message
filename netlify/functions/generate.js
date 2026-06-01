@@ -3,9 +3,18 @@ exports.handler = async (event) => {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
-  const { offer, link, brand, leads } = JSON.parse(event.body);
+  try {
+    const { offer, link, brand, leads } = JSON.parse(event.body);
 
-  const prompt = `You are a direct-response copywriter. Write outreach sequences for each lead below.
+    if (!leads || !Array.isArray(leads) || leads.length === 0) {
+      return { statusCode: 400, body: JSON.stringify({ error: 'No leads provided' }) };
+    }
+
+    if (!offer) {
+      return { statusCode: 400, body: JSON.stringify({ error: 'No offer provided' }) };
+    }
+
+    const prompt = `You are a direct-response copywriter. Write outreach sequences for each lead below.
 
 Offer: ${offer}
 Link: ${link || '[INSERT LINK]'}
@@ -22,7 +31,6 @@ For each lead write:
 Respond ONLY in this exact JSON, no markdown, no extra text:
 {"sequences":[{"name":"","email":"","phone":"","email_subject":"","email_body":"","sms":""}]}`;
 
-  try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -38,18 +46,18 @@ Respond ONLY in this exact JSON, no markdown, no extra text:
     });
 
     const data = await res.json();
+
+    if (!data.content || !Array.isArray(data.content)) {
+      return { statusCode: 500, body: JSON.stringify({ error: 'Bad Anthropic response', detail: data }) };
+    }
+
     const text = data.content.map(b => b.text || '').join('');
     const clean = text.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify(parsed)
-    };
+    return { statusCode: 200, body: JSON.stringify(parsed) };
+
   } catch (err) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: err.message })
-    };
+    return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
   }
 };

@@ -31,14 +31,14 @@ For each lead write:
 Respond ONLY in this exact JSON, no markdown, no extra text:
 {"sequences":[{"name":"","email":"","phone":"","email_subject":"","email_body":"","sms":""}]}`;
 
-    const res = await fetch('https://api.x.ai/v1/chat/completions', {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.XAI_API_KEY}`
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'grok-3',
+        model: 'llama-3.3-70b-versatile',
         messages: [{ role: 'user', content: prompt }]
       })
     });
@@ -46,7 +46,7 @@ Respond ONLY in this exact JSON, no markdown, no extra text:
     const data = await res.json();
 
     if (!data.choices || !data.choices[0]) {
-      return { statusCode: 500, body: JSON.stringify({ error: 'Bad Grok response', detail: data }) };
+      return { statusCode: 500, body: JSON.stringify({ error: 'Bad Groq response', detail: data }) };
     }
 
     const text = data.choices[0].message.content;
